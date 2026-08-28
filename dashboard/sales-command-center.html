@@ -1,0 +1,677 @@
+<title>Sales Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  /* ── Tokens: dark-first (the command-center look). Light theme swaps below. ── */
+  :root {
+    color-scheme: dark;
+    --ground:        #131311;
+    --card:          #1c1b17;
+    --card-2:        #211f1a;
+    --ink:           #f2efe4;
+    --ink-2:         #b8b3a2;
+    --muted:         #8b8779;
+    --line:          rgba(242, 239, 228, 0.11);
+    --line-strong:   rgba(242, 239, 228, 0.22);
+    --gold:          #e2af35;
+    --gold-ink:      #e2af35;
+    --gold-wash:     rgba(226, 175, 53, 0.10);
+    --data-1:        #3987e5;
+    --ramp-1: #9ec5f4; --ramp-2: #6da7ec; --ramp-3: #3987e5; --ramp-4: #256abf;
+    --good:          #0ca30c;
+    --warning:       #fab219;
+    --critical:      #d03b3b;
+    --good-ink:      #4cc24c;
+    --warning-ink:   #fab219;
+    --critical-ink:  #ec6a6a;
+    --track:         rgba(242, 239, 228, 0.09);
+    --shadow:        0 1px 0 rgba(0,0,0,0.4);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      color-scheme: light;
+      --ground:        #f6f4ec;
+      --card:          #fdfcf8;
+      --card-2:        #f3f1e7;
+      --ink:           #191813;
+      --ink-2:         #55524a;
+      --muted:         #837f72;
+      --line:          rgba(25, 24, 19, 0.12);
+      --line-strong:   rgba(25, 24, 19, 0.26);
+      --gold:          #dca61f;
+      --gold-ink:      #8a6a00;
+      --gold-wash:     rgba(220, 166, 31, 0.13);
+      --data-1:        #2a78d6;
+      --ramp-1: #86b6ef; --ramp-2: #5598e7; --ramp-3: #2a78d6; --ramp-4: #1c5cab;
+      --good-ink:      #006300;
+      --warning-ink:   #815b00;
+      --critical-ink:  #b32424;
+      --track:         rgba(25, 24, 19, 0.08);
+      --shadow:        0 1px 2px rgba(25,24,19,0.06);
+    }
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --ground:        #f6f4ec;
+    --card:          #fdfcf8;
+    --card-2:        #f3f1e7;
+    --ink:           #191813;
+    --ink-2:         #55524a;
+    --muted:         #837f72;
+    --line:          rgba(25, 24, 19, 0.12);
+    --line-strong:   rgba(25, 24, 19, 0.26);
+    --gold:          #dca61f;
+    --gold-ink:      #8a6a00;
+    --gold-wash:     rgba(220, 166, 31, 0.13);
+    --data-1:        #2a78d6;
+    --ramp-1: #86b6ef; --ramp-2: #5598e7; --ramp-3: #2a78d6; --ramp-4: #1c5cab;
+    --good-ink:      #006300;
+    --warning-ink:   #815b00;
+    --critical-ink:  #b32424;
+    --track:         rgba(25, 24, 19, 0.08);
+    --shadow:        0 1px 2px rgba(25,24,19,0.06);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 20px 64px; }
+
+  h1, h2, .display { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", monospace; }
+
+  /* ── Masthead: the window-sticker header ── */
+  .masthead { border-bottom: 3px solid var(--ink); padding-bottom: 14px; margin-bottom: 6px; }
+  .mast-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 500;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+    margin: 0 0 2px;
+  }
+  h1 {
+    margin: 0; font-size: clamp(34px, 6vw, 52px); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.015em; line-height: 0.95;
+    text-wrap: balance;
+  }
+  h1 .bar { color: var(--gold-ink); }
+  .mast-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .datestamp { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink-2); }
+  .conn {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    border: 1px solid var(--line-strong); border-radius: 3px; padding: 4px 9px;
+    color: var(--ink-2); background: var(--card);
+  }
+  .conn .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex: none; }
+  .conn.live .dot { background: var(--good); }
+  .conn.live { color: var(--good-ink); border-color: var(--good-ink); }
+  .conn.warn { color: var(--warning-ink); }
+  .mast-sub {
+    display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); padding: 8px 2px 0;
+    border-top: 1px solid var(--line); margin-top: 12px;
+  }
+
+  /* ── Panels ── */
+  .panel {
+    background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+    box-shadow: var(--shadow); padding: 18px 20px; min-width: 0;
+  }
+  .panel-head {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+    margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+  }
+  h2 {
+    margin: 0; font-size: 20px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .panel-note { font-size: 12px; color: var(--muted); text-align: right; }
+  .section-err {
+    font-size: 12.5px; color: var(--warning-ink); background: var(--gold-wash);
+    border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; margin-bottom: 10px;
+    display: none;
+  }
+  .section-err.show { display: block; }
+
+  .grid { display: grid; gap: 16px; margin-top: 16px; }
+  .kpis { grid-template-columns: repeat(4, 1fr); }
+  .two { grid-template-columns: 1fr 1fr; align-items: start; }
+  @media (max-width: 860px) { .kpis { grid-template-columns: repeat(2, 1fr); } .two { grid-template-columns: 1fr; } }
+  @media (max-width: 440px) { .kpis { grid-template-columns: 1fr; } }
+
+  /* ── KPI tiles ── */
+  .kpi { display: flex; flex-direction: column; gap: 8px; }
+  .kpi .label {
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-weight: 500;
+    letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted);
+  }
+  .kpi .value { font-family: "Barlow Condensed", sans-serif; font-size: 40px; font-weight: 700; line-height: 1; }
+  .kpi .value .of { font-size: 20px; font-weight: 500; color: var(--ink-2); }
+  .meter { position: relative; height: 6px; border-radius: 3px; background: var(--track); overflow: visible; }
+  .meter .fill { position: absolute; inset: 0 auto 0 0; width: 0%; border-radius: 3px; background: var(--gold); transition: width .6s ease; }
+  .meter .tick { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--line-strong); }
+  .kpi .sub { font-size: 12px; color: var(--ink-2); display: flex; justify-content: space-between; gap: 8px; }
+  .pill {
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; border-radius: 3px; padding: 2px 6px;
+  }
+  .pill.ahead  { color: var(--good-ink); background: color-mix(in srgb, var(--good) 14%, transparent); }
+  .pill.pace   { color: var(--gold-ink); background: var(--gold-wash); }
+  .pill.behind { color: var(--critical-ink); background: color-mix(in srgb, var(--critical) 12%, transparent); }
+
+  /* ── Bar rows (funnel + engines) ── */
+  .bars { display: flex; flex-direction: column; gap: 10px; }
+  .brow { display: grid; grid-template-columns: 118px 1fr 52px; align-items: center; gap: 10px; }
+  .brow .bname { font-size: 13px; font-weight: 500; color: var(--ink-2); }
+  .brow .btrack { height: 22px; background: var(--track); border-radius: 3px; position: relative; }
+  .brow .bfill {
+    position: absolute; inset: 0 auto 0 0; width: 0%; min-width: 2px;
+    border-radius: 3px; background: var(--data-1); transition: width .6s ease;
+  }
+  .brow .bval { font-family: "IBM Plex Mono", monospace; font-size: 13px; font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+  .conv { display: grid; grid-template-columns: 118px 1fr; gap: 10px; }
+  .conv .cline {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--muted);
+    padding: 1px 0 1px 10px; border-left: 2px solid var(--line-strong); margin-left: 6px;
+  }
+  .conv .cline b { color: var(--ink-2); font-weight: 600; }
+
+  .empty {
+    border: 1px dashed var(--line-strong); border-radius: 5px; padding: 14px;
+    font-size: 13px; color: var(--ink-2); background: var(--card-2);
+  }
+  .empty b { color: var(--ink); }
+  .empty .cmd { font-family: "IBM Plex Mono", monospace; color: var(--gold-ink); }
+
+  /* ── Today panel ── */
+  .play {
+    border-left: 3px solid var(--gold); background: var(--gold-wash);
+    border-radius: 0 5px 5px 0; padding: 12px 14px; margin-bottom: 14px;
+  }
+  .play .ptag { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--gold-ink); font-weight: 600; }
+  .play .pname { font-family: "Barlow Condensed", sans-serif; font-size: 22px; font-weight: 600; margin: 2px 0 3px; }
+  .play .pdesc { font-size: 13px; color: var(--ink-2); }
+  .checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .checks li { border-bottom: 1px solid var(--line); }
+  .checks li:last-child { border-bottom: none; }
+  .checks label { display: flex; align-items: center; gap: 11px; padding: 9px 2px; cursor: pointer; font-size: 14px; }
+  .checks input { appearance: none; width: 17px; height: 17px; margin: 0; flex: none; border: 2px solid var(--line-strong); border-radius: 3px; cursor: pointer; position: relative; }
+  .checks input:checked { background: var(--gold); border-color: var(--gold); }
+  .checks input:checked::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; font-weight: 700; color: var(--ground); }
+  .checks input:focus-visible, .cmdlink:focus-visible { outline: 2px solid var(--data-1); outline-offset: 2px; }
+  .checks input:checked + span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line-strong); }
+  .checks .why { font-size: 11.5px; color: var(--muted); margin-left: auto; text-align: right; }
+
+  /* ── Network + content lists ── */
+  .rows { display: flex; flex-direction: column; }
+  .rowi { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .rowi:last-child { border-bottom: none; }
+  .rowi .who b { font-weight: 600; }
+  .rowi .who span { color: var(--muted); font-size: 12px; }
+  .rowi .when { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--ink-2); white-space: nowrap; }
+  .rowi.cold .when { color: var(--critical-ink); }
+  .chip {
+    display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 10px;
+    letter-spacing: 0.06em; text-transform: uppercase; border: 1px solid var(--line-strong);
+    border-radius: 3px; padding: 1px 6px; color: var(--ink-2);
+  }
+  .chip.posted { color: var(--good-ink); border-color: var(--good-ink); }
+
+  /* ── Command reference ── */
+  .cmds { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 2px 24px; }
+  .cmdrow { display: flex; gap: 12px; align-items: baseline; padding: 7px 2px; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .cmdrow .c { font-family: "IBM Plex Mono", monospace; font-weight: 600; color: var(--gold-ink); white-space: nowrap; min-width: 88px; }
+  .cmdrow .d { color: var(--ink-2); }
+  .links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; }
+  .cmdlink { font-size: 13px; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 1px; }
+  .cmdlink:hover { color: var(--gold-ink); }
+
+  .foot {
+    margin-top: 26px; padding-top: 14px; border-top: 3px solid var(--ink);
+    display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  @media (prefers-reduced-motion: reduce) { .meter .fill, .brow .bfill { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="mast-top">
+      <div>
+        <p class="eyebrow">Berger Chevrolet · Grand Rapids MI · Nick's Personal OS</p>
+        <h1>Sales <span class="bar">Command</span> Center</h1>
+      </div>
+      <div class="mast-right">
+        <span class="conn" id="conn"><span class="dot"></span><span id="connText">Connecting…</span></span>
+        <span class="datestamp" id="datestamp"></span>
+      </div>
+    </div>
+    <div class="mast-sub">
+      <span>Engines: Social/Video · Database Mining · Referrals &amp; Repeat · Floor &amp; Phone</span>
+      <span id="monthLabel"></span>
+    </div>
+  </header>
+
+  <div id="pageErr" class="section-err" style="margin-top:14px"></div>
+
+  <!-- Scoreboard -->
+  <section class="grid kpis" id="kpis" aria-label="Monthly scoreboard">
+    <div class="panel kpi" id="kpi-units"></div>
+    <div class="panel kpi" id="kpi-gross"></div>
+    <div class="panel kpi" id="kpi-appts"></div>
+    <div class="panel kpi" id="kpi-refs"></div>
+  </section>
+
+  <div class="grid two">
+    <!-- Funnel -->
+    <section class="panel">
+      <div class="panel-head"><h2>The Funnel</h2><span class="panel-note">Month to date</span></div>
+      <div class="section-err" id="err-funnel"></div>
+      <div id="funnel"></div>
+    </section>
+
+    <!-- Engines -->
+    <section class="panel">
+      <div class="panel-head"><h2>Deals by Engine</h2><span class="panel-note">Where sales come from</span></div>
+      <div class="section-err" id="err-engines"></div>
+      <div id="engines"></div>
+    </section>
+
+    <!-- Today -->
+    <section class="panel">
+      <div class="panel-head"><h2>Today's Plan</h2><span class="panel-note" id="todayNote"></span></div>
+      <div id="play"></div>
+      <ul class="checks" id="checks"></ul>
+    </section>
+
+    <!-- Network -->
+    <section class="panel">
+      <div class="panel-head"><h2>Referral Network</h2><span class="panel-note">Touches due &amp; going cold</span></div>
+      <div class="section-err" id="err-network"></div>
+      <div id="network"></div>
+    </section>
+  </div>
+
+  <!-- Content week -->
+  <section class="panel" style="margin-top:16px">
+    <div class="panel-head"><h2>Content This Week</h2><span class="panel-note">Plan with /social · mark posted with /log</span></div>
+    <div class="section-err" id="err-content"></div>
+    <div id="content"></div>
+  </section>
+
+  <!-- Commands + playbooks -->
+  <section class="panel" style="margin-top:16px">
+    <div class="panel-head"><h2>Run the OS</h2><span class="panel-note">Type these to Claude</span></div>
+    <div class="cmds" id="cmds"></div>
+    <div class="links" id="playbooks"></div>
+  </section>
+
+  <footer class="foot">
+    <span>Data · Airtable “Sales Command Center”</span>
+    <span id="freshness">—</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ── Airtable wiring ─────────────────────────────────────────────── */
+  var BASE = "appTLYaiyhRPm97GD";
+  var T = {
+    goals:   { id: "tblmboNzRt6HN70fz", f: { month:"fldgVmLAtvsQ6qY2A", unitsGoal:"fldhujYldjFCVK7UA", unitsAct:"fldisqqxlQHUlWXF3", grossGoal:"fldtUTC6n0DIcGW6B", grossAct:"fldFs4q04XB12iOvE", apGoal:"flddn0DeC3pLXLlV1", apAct:"fldFt9pkVC7QP5htS", refGoal:"flda1ncDg8QPkB55c", refAct:"fldkwHbyLkvTZtWBU" } },
+    activity:{ id: "tbl64IBxuQ55pBR6X", f: { entry:"fld87RlnUhzQ3MpsK", date:"fldGeN1otrMP3qkG6", calls:"fldhcd5htmpEHGnbW", texts:"fldpNAJNWxZW4L15h", emails:"fldQ6mC7tcI8a362r", conv:"fld9JJ26ppjqF8P49", apSet:"fldY7ZhqPpnHq6kel", apShown:"fldP1recUtLyXrlsd", mining:"fld7ChzZCPcZh4pQR", videos:"fldDOFhHfbUQ0pJPH", posts:"fldyRKr0l0OANQ90N", listings:"fldruhzjfdJI1g3Je", refAsks:"fldfCQVfURqLzdqhe" } },
+    deals:   { id: "tblTYelFAvMm3gxUs", f: { deal:"fldZMTqyAEobfiA0L", date:"fldaTkjn4a6OuwGNF", vehicle:"fldKLE23OXOQHArpx", front:"fld0IoizIYOvgEp20", back:"fld81q1K3EdeNobmZ", engine:"fldNkpm3buMOIwlT1" } },
+    network: { id: "tbluITbd3XKIx7xn3", f: { name:"fldccphpOJOuthLHH", role:"fldQJPkc4u0lB3aF5", last:"fld1tLfXEYByzSwSJ", next:"fldXeG12AIDaTnCAc", sent:"fldTcGgPTHnxUSAuR" } },
+    content: { id: "tblwrau5HSb5kqFqr", f: { title:"fldxHbLTFsujlTI28", date:"fldHJsIXj9eemKWq9", platform:"fldRvTIkMHTQ71Nb7", type:"fldFb3fDyDzoo9ids", status:"fldInlO1DpYqSKt1e" } }
+  };
+
+  /* Snapshot taken at publish time — replaced by live data when Airtable answers. */
+  var SNAPSHOT_AT = 1787931000000; /* 2026-08-28 ~15:30 UTC */
+  var data = {
+    goals:   [ { f: (function(){ var o={}; o[T.goals.f.month]="2026-09"; o[T.goals.f.unitsGoal]=15; o[T.goals.f.unitsAct]=0; o[T.goals.f.grossGoal]=45000; o[T.goals.f.grossAct]=0; o[T.goals.f.apGoal]=40; o[T.goals.f.apAct]=0; o[T.goals.f.refGoal]=8; o[T.goals.f.refAct]=0; return o; })() } ],
+    activity: [], deals: [], network: [], content: []
+  };
+  var freshest = { at: SNAPSHOT_AT, live: false };
+
+  /* ── Helpers ─────────────────────────────────────────────────────── */
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]; }); }
+  function num(v) { return typeof v === "number" && isFinite(v) ? v : (v != null && isFinite(+v) ? +v : 0); }
+  function selName(v) { /* singleSelect values may arrive as a string, {name}, or {id,name} */
+    if (v == null) return "";
+    if (typeof v === "string") return v;
+    if (Array.isArray(v)) return v.map(selName).join(", ");
+    if (typeof v === "object") return String(v.name != null ? v.name : (v.value != null ? v.value : ""));
+    return String(v);
+  }
+  function dstr(v) { var s = selName(v); return s ? s.slice(0, 10) : ""; }
+  function fmtMoney(n) { return "$" + Math.round(n).toLocaleString("en-US"); }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function todayLocal() { var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); }
+  function monthKey() { var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth()+1); }
+  function daysBetween(a, b) { return Math.round((b - a) / 86400000); }
+  function parseISO(s) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ""); return m ? new Date(+m[1], +m[2]-1, +m[3]) : null; }
+  function fields(rec) { return (rec && (rec.cellValuesByFieldId || rec.fields || rec.f)) || {}; }
+
+  function parseRecords(payload) {
+    var p = payload;
+    if (typeof p === "string") { try { p = JSON.parse(p); } catch (e) { return null; } }
+    if (!p || typeof p !== "object") return null;
+    var recs = p.records || (p.result && p.result.records) || (p.data && p.data.records);
+    return Array.isArray(recs) ? recs : null;
+  }
+
+  /* ── Static knowledge (from the OS playbooks) ────────────────────── */
+  var ROTATION = [
+    { name: "Light day — plan the week", desc: "Sunday. Batch content with /social; set the week's mining targets." },
+    { name: "Lease Renewals", desc: "Pull leases maturing in 90–180 days from DriveCentric. 10 outreaches — scripts: email/database-mining.md §Lease renewal." },
+    { name: "Orphan Owners", desc: "Work the orphan list, oldest purchase first. Intro, not pitch — you're their new inside person." },
+    { name: "Equity Mining", desc: "One model/year band. “Want me to run your exact number? 10 minutes, no strings.”" },
+    { name: "Be-backs / Unsold", desc: "30–180 day unsold with NEW info: price drop, twin unit landed, trade value up. Never “just checking in.”" },
+    { name: "Orphan Owners", desc: "Second orphan day — claim them before anyone else does. Every claim enters your lifetime cadence." },
+    { name: "Service Drive", desc: "Walk the drive. Big estimates on aging vehicles = buyers standing in the building. Coffee for the advisors." }
+  ];
+  var CHECKS = [
+    { id: "post",    label: "Post today's content",           why: "1 post/day" },
+    { id: "video",   label: "Shoot one video",                why: "3+/week" },
+    { id: "mining",  label: "10 mining outreaches",           why: "today's play" },
+    { id: "network", label: "Referral-network touches",       why: "stay warm" },
+    { id: "dc",      label: "DriveCentric workplan cleared",  why: "CRM of record" },
+    { id: "log",     label: "/log tonight's numbers",         why: "one sentence" }
+  ];
+  var CMDS = [
+    ["/daily", "Morning brief — plan, pace, plays"],
+    ["/new-lead", "Paste a lead → first-touch pack"],
+    ["/follow-up", "The right next touch, drafted"],
+    ["/social", "A week of content in one sitting"],
+    ["/objection", "What to say next, mid-deal"],
+    ["/log", "One sentence → this dashboard"],
+    ["/review", "Weekly funnel + next week's focus"]
+  ];
+  var REPO = "https://github.com/saylesnick/work-computer/blob/claude/work-cloud-environment-nsph5r/";
+  var PLAYBOOKS = [
+    ["The OS on one page", "os/00-operating-system.md"],
+    ["Social & Video", "os/playbooks/lead-engines/social-video.md"],
+    ["Database Mining", "os/playbooks/lead-engines/database-mining.md"],
+    ["Referrals & Repeat", "os/playbooks/lead-engines/referrals-repeat.md"],
+    ["Floor & Phone", "os/playbooks/lead-engines/floor-and-phone.md"],
+    ["Pre-Sale", "os/playbooks/sale-process/pre-sale.md"],
+    ["During-Sale", "os/playbooks/sale-process/during-sale.md"],
+    ["Post-Sale", "os/playbooks/sale-process/post-sale.md"]
+  ];
+
+  /* ── Renderers ───────────────────────────────────────────────────── */
+  function goalRow() {
+    var mk = monthKey(), fallback = null;
+    for (var i = 0; i < data.goals.length; i++) {
+      var f = fields(data.goals[i]);
+      if (selName(f[T.goals.f.month]) === mk) return f;
+      fallback = f;
+    }
+    return fallback;
+  }
+  function monthElapsedPct() {
+    var d = new Date();
+    var total = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    return Math.min(100, Math.round((d.getDate() / total) * 100));
+  }
+
+  function kpi(el, label, actual, goal, money) {
+    var pctGoal = goal > 0 ? (actual / goal) * 100 : 0;
+    var elapsed = monthElapsedPct();
+    var verdict, cls;
+    if (goal <= 0) { verdict = "Set a goal"; cls = "pace"; }
+    else if (pctGoal >= elapsed) { verdict = "Ahead of pace"; cls = "ahead"; }
+    else if (pctGoal >= elapsed - 12) { verdict = "On pace"; cls = "pace"; }
+    else { verdict = "Behind pace"; cls = "behind"; }
+    el.innerHTML =
+      '<span class="label">' + esc(label) + '</span>' +
+      '<span class="value">' + esc(money ? fmtMoney(actual) : String(actual)) +
+        ' <span class="of">/ ' + esc(money ? fmtMoney(goal) : String(goal)) + '</span></span>' +
+      '<div class="meter"><div class="fill" style="width:' + Math.min(100, pctGoal) + '%"></div>' +
+        '<div class="tick" style="left:' + elapsed + '%" title="Month is ' + elapsed + '% gone"></div></div>' +
+      '<span class="sub"><span>' + elapsed + '% of month gone</span><span class="pill ' + cls + '">' + verdict + '</span></span>';
+  }
+
+  function renderKpis() {
+    var g = goalRow() || {};
+    kpi($("kpi-units"), "Units", num(g[T.goals.f.unitsAct]), num(g[T.goals.f.unitsGoal]), false);
+    kpi($("kpi-gross"), "Gross", num(g[T.goals.f.grossAct]), num(g[T.goals.f.grossGoal]), true);
+    kpi($("kpi-appts"), "Appointments set", num(g[T.goals.f.apAct]), num(g[T.goals.f.apGoal]), false);
+    kpi($("kpi-refs"), "Referrals received", num(g[T.goals.f.refAct]), num(g[T.goals.f.refGoal]), false);
+    $("monthLabel").textContent = "Scoreboard month: " + monthKey();
+  }
+
+  function monthRows(list, dateFid) {
+    var mk = monthKey();
+    return list.filter(function (r) { return dstr(fields(r)[dateFid]).slice(0, 7) === mk; });
+  }
+
+  function barRow(name, val, max, color, title) {
+    var w = (max > 0 && val > 0) ? Math.max(1.5, (val / max) * 100) : 0;
+    return '<div class="brow" title="' + esc(title || name + ": " + val) + '">' +
+      '<span class="bname">' + esc(name) + '</span>' +
+      '<div class="btrack"><div class="bfill" style="width:' + w + '%; background:' + color + '"></div></div>' +
+      '<span class="bval">' + esc(String(val)) + '</span></div>';
+  }
+  function convLine(label, a, b, benchmark) {
+    var txt = (a > 0) ? Math.round((b / a) * 100) + "%" : "—";
+    return '<div class="conv"><span></span><span class="cline">' + esc(label) + ': <b>' + txt + '</b>' +
+      (benchmark ? ' <span>(beat ' + esc(benchmark) + ')</span>' : '') + '</span></div>';
+  }
+
+  function renderFunnel() {
+    var rows = monthRows(data.activity, T.activity.f.date);
+    var f = T.activity.f, conv = 0, set = 0, shown = 0;
+    rows.forEach(function (r) { var x = fields(r); conv += num(x[f.conv]); set += num(x[f.apSet]); shown += num(x[f.apShown]); });
+    var sold = monthRows(data.deals, T.deals.f.date).length;
+    var el = $("funnel");
+    if (conv + set + shown + sold === 0) {
+      el.innerHTML = '<div class="empty"><b>No funnel data yet this month.</b> Tonight’s <span class="cmd">/log</span> starts the machine — “20 calls, 6 conversations, 2 appointments set” is all it takes. Ten real conversations a day is the whole game.</div>';
+      return;
+    }
+    var max = Math.max(conv, set, shown, sold, 1);
+    var ramp = ["var(--ramp-1)", "var(--ramp-2)", "var(--ramp-3)", "var(--ramp-4)"];
+    el.innerHTML = '<div class="bars">' +
+      barRow("Conversations", conv, max, ramp[0]) +
+      convLine("Conv → set", conv, set, "20–30%") +
+      barRow("Appts set", set, max, ramp[1]) +
+      convLine("Set → shown", set, shown, "50–70%") +
+      barRow("Shown", shown, max, ramp[2]) +
+      convLine("Shown → sold", shown, sold, "~50%") +
+      barRow("Sold", sold, max, ramp[3]) +
+      '</div>';
+  }
+
+  function renderEngines() {
+    var rows = monthRows(data.deals, T.deals.f.date);
+    var el = $("engines");
+    if (!rows.length) {
+      el.innerHTML = '<div class="empty"><b>No deals logged this month yet.</b> When one lands: <span class="cmd">/log sold Jones the Silverado — referral</span>. Source attribution is the OS’s most important data — it decides where you double down.</div>';
+      return;
+    }
+    var by = {};
+    rows.forEach(function (r) { var e = selName(fields(r)[T.deals.f.engine]) || "Unattributed"; by[e] = (by[e] || 0) + 1; });
+    var pairs = Object.keys(by).map(function (k) { return [k, by[k]]; }).sort(function (a, b) { return b[1] - a[1]; });
+    var max = pairs[0][1];
+    var html = '<div class="bars">' + pairs.map(function (p) { return barRow(p[0], p[1], max, "var(--data-1)"); }).join("") + "</div>";
+    var top = pairs[0];
+    html += '<p style="font-size:12.5px;color:var(--ink-2);margin:12px 0 0">Leading engine: <b style="color:var(--ink)">' + esc(top[0]) + "</b> — " + top[1] + (top[1] === 1 ? " deal" : " deals") + ". Feed what’s working.</p>";
+    el.innerHTML = html;
+  }
+
+  function renderToday() {
+    var d = new Date();
+    var play = ROTATION[d.getDay()];
+    $("todayNote").textContent = d.toLocaleDateString("en-US", { weekday: "long" });
+    $("play").innerHTML = '<div class="play"><span class="ptag">Mining play of the day</span>' +
+      '<div class="pname">' + esc(play.name) + '</div><div class="pdesc">' + esc(play.desc) + "</div></div>";
+
+    var key = "sos-checks-" + todayLocal(), saved = {};
+    try { saved = JSON.parse(localStorage.getItem(key) || "{}") || {}; } catch (e) { saved = {}; }
+    var ul = $("checks");
+    ul.innerHTML = CHECKS.map(function (c) {
+      return '<li><label><input type="checkbox" data-id="' + c.id + '"' + (saved[c.id] ? " checked" : "") + ">" +
+        "<span>" + esc(c.label) + '</span><span class="why">' + esc(c.why) + "</span></label></li>";
+    }).join("");
+    ul.addEventListener("change", function (ev) {
+      var t = ev.target; if (!t || !t.dataset || !t.dataset.id) return;
+      saved[t.dataset.id] = !!t.checked;
+      try { localStorage.setItem(key, JSON.stringify(saved)); } catch (e) { /* per-viewer nicety only */ }
+    });
+  }
+
+  function renderNetwork() {
+    var el = $("network"), f = T.network.f, today = parseISO(todayLocal());
+    if (!data.network.length) {
+      el.innerHTML = '<div class="empty"><b>Your referral network starts empty.</b> Add the first bird dogs — barber, gym staff, service advisors — with <span class="cmd">/log coffee with Mike the barber</span>. Twenty warm contacts touched monthly out-earn any ad budget.</div>';
+      return;
+    }
+    var due = [], cold = [];
+    data.network.forEach(function (r) {
+      var x = fields(r), name = selName(x[f.name]);
+      if (!name) return;
+      var next = parseISO(dstr(x[f.next])), last = parseISO(dstr(x[f.last]));
+      var role = selName(x[f.role]);
+      if (next && next <= today) due.push({ name: name, role: role, note: "due " + dstr(x[f.next]) });
+      else if (last && daysBetween(last, today) > 30) cold.push({ name: name, role: role, note: daysBetween(last, today) + "d silent", cold: true });
+      else if (!last && !next) cold.push({ name: name, role: role, note: "never touched", cold: true });
+    });
+    var items = due.concat(cold).slice(0, 8);
+    if (!items.length) {
+      el.innerHTML = '<div class="empty"><b>Network is warm.</b> ' + data.network.length + " contacts, nobody overdue, nobody cold. Keep the monthly touches rolling.</div>";
+      return;
+    }
+    el.innerHTML = '<div class="rows">' + items.map(function (i) {
+      return '<div class="rowi' + (i.cold ? " cold" : "") + '"><span class="who"><b>' + esc(i.name) + "</b> " +
+        (i.role ? "<span>· " + esc(i.role) + "</span>" : "") + '</span><span class="when">' + esc(i.note) + "</span></div>";
+    }).join("") + "</div>";
+  }
+
+  function renderContent() {
+    var el = $("content"), f = T.content.f, today = parseISO(todayLocal());
+    var start = new Date(today); start.setDate(start.getDate() - start.getDay());
+    var end = new Date(start); end.setDate(end.getDate() + 7);
+    var week = data.content.filter(function (r) {
+      var d = parseISO(dstr(fields(r)[f.date])); return d && d >= start && d < end;
+    }).sort(function (a, b) { return dstr(fields(a)[f.date]) < dstr(fields(b)[f.date]) ? -1 : 1; });
+    if (!week.length) {
+      el.innerHTML = '<div class="empty"><b>Nothing planned this week.</b> One sitting of <span class="cmd">/social</span> fills all seven days — 3 value posts, 2 education, 1 delivery, 1 human. The trust machine only compounds if it runs.</div>';
+      return;
+    }
+    el.innerHTML = '<div class="rows">' + week.map(function (r) {
+      var x = fields(r), status = selName(x[f.status]) || "Idea";
+      var d = parseISO(dstr(x[f.date]));
+      var day = d ? d.toLocaleDateString("en-US", { weekday: "short" }) : "—";
+      return '<div class="rowi"><span class="who"><span class="mono" style="font-size:11px;color:var(--muted);margin-right:8px">' + esc(day) + "</span><b>" +
+        esc(selName(x[f.title]) || "Untitled") + "</b> <span>· " + esc(selName(x[f.platform]) || "") + " " + esc(selName(x[f.type]) || "") + "</span></span>" +
+        '<span class="chip' + (status === "Posted" ? " posted" : "") + '">' + esc(status) + "</span></div>";
+    }).join("") + "</div>";
+  }
+
+  function renderStatic() {
+    $("cmds").innerHTML = CMDS.map(function (c) {
+      return '<div class="cmdrow"><span class="c">' + esc(c[0]) + '</span><span class="d">' + esc(c[1]) + "</span></div>";
+    }).join("");
+    $("playbooks").innerHTML = PLAYBOOKS.map(function (p) {
+      return '<a class="cmdlink" href="' + REPO + p[1] + '" target="_blank" rel="noopener">' + esc(p[0]) + "</a>";
+    }).join("");
+    var d = new Date();
+    $("datestamp").textContent = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function renderData() { renderKpis(); renderFunnel(); renderEngines(); renderNetwork(); renderContent(); updateFreshness(); }
+
+  /* ── Connection state ────────────────────────────────────────────── */
+  function setConn(mode, text) {
+    var el = $("conn");
+    el.className = "conn" + (mode === "live" ? " live" : mode === "warn" ? " warn" : "");
+    $("connText").textContent = text;
+  }
+  function updateFreshness() {
+    var d = new Date(freshest.at);
+    $("freshness").textContent = (freshest.live ? "Live · updated " : "Snapshot · ") +
+      d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + " " +
+      d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  }
+
+  var ERR_COPY = {
+    needs_reauth: "Airtable needs to be reconnected — claude.ai Settings → Connectors.",
+    server_not_connected: "Airtable isn’t connected for this viewer — add it in claude.ai Settings → Connectors.",
+    selection_required: "More than one Airtable connector is available — pick one in the prompt claude.ai shows.",
+    blocked_by_policy: "Airtable access is blocked by org policy for this viewer.",
+    approval_required: "This call needs approval that isn’t available here."
+  };
+  var sectionErrs = { funnel: null, engines: null, network: null, content: null };
+  function showSectionErr(id, err) {
+    var el = $("err-" + id); if (!el) return;
+    if (!err) { el.className = "section-err"; el.textContent = ""; return; }
+    el.className = "section-err show";
+    el.textContent = ERR_COPY[err.code] || ("Couldn’t refresh this section (" + err.code + "). Showing the last data.");
+  }
+  function maybePageErr() {
+    var codes = Object.keys(sectionErrs).map(function (k) { return sectionErrs[k] && sectionErrs[k].code; }).filter(Boolean);
+    var pe = $("pageErr");
+    var allSame = codes.length === 4 && codes.every(function (c) { return c === codes[0]; });
+    if (allSame && ERR_COPY[codes[0]]) {
+      pe.className = "section-err show"; pe.textContent = ERR_COPY[codes[0]];
+      ["funnel","engines","network","content"].forEach(function (k) { showSectionErr(k, null); });
+      setConn("warn", codes[0] === "needs_reauth" ? "Reconnect Airtable" : "Airtable unavailable");
+    } else { pe.className = "section-err"; pe.textContent = ""; }
+  }
+
+  /* ── Boot ────────────────────────────────────────────────────────── */
+  renderStatic(); renderToday(); renderData();
+  setConn("", "Snapshot");
+
+  var RETRACT = { needs_reauth: 1, server_not_connected: 1, blocked_by_policy: 1, approval_required: 1 };
+
+  if (!window.claude || typeof window.claude.use !== "function") {
+    setConn("", "Snapshot — open in claude.ai for live data");
+    return;
+  }
+  window.claude.use("mcp").then(function (mcp) {
+    if (!mcp) { setConn("", "Snapshot — open in claude.ai for live data"); return; }
+    var watched = [
+      ["goals", "funnel"], ["activity", "funnel"], ["deals", "engines"],
+      ["network", "network"], ["content", "content"]
+    ];
+    watched.forEach(function (pair) {
+      var key = pair[0], sect = pair[1];
+      mcp.watchTool("Airtable", "list_records_for_table",
+        { baseId: BASE, tableId: T[key].id },
+        function (ev) {
+          if (ev.type === "data") {
+            var recs = parseRecords(ev.result && ev.result.payload);
+            if (recs) {
+              data[key] = recs;
+              var at = ev.result.cache && ev.result.cache.storedAt ? ev.result.cache.storedAt : Date.now();
+              if (at > freshest.at || !freshest.live) { freshest = { at: at, live: true }; }
+              sectionErrs[sect] = null; showSectionErr(sect, null);
+              setConn("live", "Live · Airtable");
+              renderData(); maybePageErr();
+            }
+          } else if (ev.type === "error") {
+            var code = ev.error && ev.error.code;
+            if (RETRACT[code]) { data[key] = key === "goals" ? data.goals : []; renderData(); }
+            sectionErrs[sect] = ev.error || { code: "upstream_error" };
+            showSectionErr(sect, sectionErrs[sect]); maybePageErr();
+          }
+        },
+        { cache: { staleTime: 60000 }, refetchInterval: 120000 }
+      );
+    });
+  });
+})();
+</script>

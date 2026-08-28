@@ -62,4 +62,10 @@ os/playbooks/lead-engines/       ← social-video, database-mining, referrals-re
 os/playbooks/sale-process/       ← pre-sale, during-sale, post-sale
 os/scripts/{email,text,phone,social}/  ← copy-paste template libraries
 .claude/skills/                  ← the slash commands above
+dashboard/sales-command-center.html    ← the live dashboard (published as a Claude artifact)
 ```
+
+The dashboard is published at a stable artifact URL; to change it, edit
+`dashboard/sales-command-center.html` and republish to the same artifact.
+It reads Airtable live via the viewer's connector (`list_records_for_table`
+only) and falls back to a labeled snapshot when offline.

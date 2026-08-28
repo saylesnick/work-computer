@@ -17,6 +17,7 @@ the whole system on one page.
 | Scripts | `os/scripts/{email,text,phone,social}/` | Copy-paste templates for every scenario |
 | Scoreboard | Airtable "Sales Command Center" (`os/airtable.md`) | Goals, activity, deals w/ source attribution, referral network, content calendar |
 | Daily interface | `.claude/skills/` | `/daily` `/new-lead` `/follow-up` `/social` `/objection` `/log` `/review` |
+| Dashboard | `dashboard/sales-command-center.html` | Live command-center page (published as a Claude artifact; reads Airtable via the viewer's connector) |
 
 ## The daily loop
 
