@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sayles OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<!-- Non-blocking font load: the cockpit must work offline / behind a slow network,
+     so this must never block rendering or the inline script. -->
+<link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  /* Sayles OS — deliberate single-look dark cockpit. Berger is tab one. */
+  :root {
+    --ground:   #121210;
+    --card:     #1b1a16;
+    --card-2:   #201e19;
+    --ink:      #f2efe4;
+    --ink-2:    #b8b3a2;
+    --muted:    #8b8779;
+    --line:     rgba(242,239,228,0.11);
+    --line-2:   rgba(242,239,228,0.22);
+    --gold:     #e2af35;
+    --gold-dim: rgba(226,175,53,0.12);
+    --blue:     #3987e5;
+    --good:     #4cc24c;
+    --bad:      #ec6a6a;
+    --grid:     rgba(242,239,228,0.07);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--ground); color: var(--ink); }
+  body { font-family: "Barlow", system-ui, sans-serif; font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  .cond { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  a { color: inherit; }
+
+  /* ── Shell: sidebar + content ── */
+  .shell { display: grid; grid-template-columns: 216px 1fr; min-height: 100vh; }
+  .side { border-right: 1px solid var(--line); padding: 22px 14px; display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100vh; }
+  .logo { display: flex; align-items: center; gap: 10px; padding: 0 8px 16px; border-bottom: 2px solid var(--ink); margin-bottom: 14px; }
+  .logo .flag { font-size: 20px; }
+  .logo .name { font-family: "Barlow Condensed", sans-serif; font-size: 24px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; line-height: 1; }
+  .logo .name b { color: var(--gold); font-weight: 700; }
+  .logo .sub { font-family: "IBM Plex Mono", monospace; font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .navlabel { font-family: "IBM Plex Mono", monospace; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); padding: 10px 8px 4px; }
+  .tabbtn { display: flex; align-items: center; gap: 9px; width: 100%; text-align: left; background: none; border: 1px solid transparent; border-radius: 4px; padding: 9px 10px; cursor: pointer; color: var(--ink-2); font-family: "IBM Plex Mono", monospace; font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; }
+  .tabbtn:hover { border-color: var(--line-2); color: var(--ink); }
+  .tabbtn.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+  .tabbtn .glyph { width: 14px; text-align: center; }
+  .tabbtn .soon { margin-left: auto; font-size: 8.5px; letter-spacing: .08em; border: 1px solid var(--line-2); border-radius: 3px; padding: 1px 5px; color: var(--muted); }
+  .side .spacer { flex: 1; }
+  .side .foot { font-family: "IBM Plex Mono", monospace; font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 10px 8px 0; border-top: 1px solid var(--line); }
+  .statuschip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-2); border-radius: 3px; padding: 5px 11px; font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); background: var(--card); }
+  .statuschip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .statuschip.run { color: var(--gold); border-color: var(--gold); }
+  .statuschip.run .dot { background: var(--gold); animation: pulse 1.1s infinite; }
+  @keyframes pulse { 50% { opacity: .3; } }
+  @media (prefers-reduced-motion: reduce) { .statuschip.run .dot, .cursor { animation: none; } }
+
+  .content { padding: 24px 22px 60px; min-width: 0; max-width: 1100px; }
+  @media (max-width: 880px) {
+    .shell { grid-template-columns: 1fr; }
+    .side { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; border-right: none; border-bottom: 1px solid var(--line); padding: 14px; }
+    .logo { border-bottom: none; margin: 0 8px 0 0; padding: 0; }
+    .navlabel, .side .spacer, .side .foot { display: none; }
+  }
+
+  /* Tab header */
+  .mast { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; flex-wrap: wrap; border-bottom: 3px solid var(--ink); padding-bottom: 12px; }
+  h1 { margin: 0; font-family: "Barlow Condensed", sans-serif; font-size: clamp(28px,4.5vw,40px); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; line-height: .95; }
+  h1 b { color: var(--gold); font-weight: 700; }
+  .eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); margin: 0 0 3px; }
+
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 18px; }
+  .chip { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line-2); border-radius: 3px; padding: 6px 12px; font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); text-decoration: none; background: var(--card); }
+  .chip:hover { border-color: var(--ink-2); }
+
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; min-width: 0; }
+  .plabel { font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+
+  .meters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 820px) { .meters { grid-template-columns: 1fr; } }
+  .meter-val { font-family: "Barlow Condensed", sans-serif; font-size: 30px; font-weight: 700; margin: 6px 0 8px; }
+  .meter-val small { font-size: 16px; color: var(--ink-2); font-weight: 500; }
+  .bar { height: 6px; border-radius: 3px; background: rgba(242,239,228,.09); position: relative; }
+  .bar i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--gold); width: 0%; transition: width .5s ease; }
+  .bar i.blue { background: var(--blue); }
+  .meter-sub { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--muted); margin-top: 7px; }
+
+  .activity { margin-top: 14px; }
+  .activity svg { display: block; width: 100%; height: 150px; }
+
+  .main { display: grid; grid-template-columns: 1fr 290px; gap: 14px; margin-top: 14px; align-items: start; }
+  @media (max-width: 940px) { .main { grid-template-columns: 1fr; } }
+
+  .hero { font-family: "Barlow Condensed", sans-serif; font-size: clamp(24px,3.6vw,36px); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; margin: 4px 0 2px; }
+  .hero b { color: var(--gold); }
+  .cursor { display: inline-block; width: .5em; height: 1em; background: var(--gold); vertical-align: -0.12em; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .hint { color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .06em; }
+
+  .skills { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+  .skill { border: 1px solid var(--line-2); background: var(--card-2); border-radius: 3px; padding: 7px 12px; cursor: pointer; font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink); }
+  .skill:hover, .skill:focus-visible { border-color: var(--gold); color: var(--gold); outline: none; }
+  .skill span { color: var(--muted); font-size: 10px; display: block; letter-spacing: .02em; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  textarea { width: 100%; min-height: 84px; resize: vertical; background: var(--ground); color: var(--ink); border: 1px solid var(--line-2); border-radius: 4px; padding: 10px 12px; font-family: "IBM Plex Mono", monospace; font-size: 13px; }
+  textarea:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+  .runrow { display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+  button.run { background: var(--gold); color: #121210; border: none; border-radius: 3px; padding: 9px 22px; font-family: "Barlow Condensed", sans-serif; font-size: 17px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+  button.run:hover { filter: brightness(1.08); }
+  button.run:disabled { opacity: .45; cursor: not-allowed; }
+  button.stop { background: none; border: 1px solid var(--line-2); color: var(--ink-2); border-radius: 3px; padding: 8px 14px; font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
+  select { background: var(--card-2); color: var(--ink-2); border: 1px solid var(--line-2); border-radius: 3px; padding: 8px 10px; font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+  .runmeta { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--muted); margin-left: auto; }
+
+  .console { margin-top: 14px; background: #0d0d0b; border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px; min-height: 120px; max-height: 420px; overflow: auto; font-family: "IBM Plex Mono", monospace; font-size: 12.5px; white-space: pre-wrap; word-break: break-word; color: var(--ink-2); }
+  .console .out { color: var(--ink); }
+  .console .tool { color: var(--gold); opacity: .8; }
+  .console .err { color: var(--bad); }
+  .console .sys { color: var(--muted); }
+
+  .runs-list { display: flex; flex-direction: column; margin-top: 8px; }
+  .run-item { padding: 8px 2px; border-bottom: 1px solid var(--line); }
+  .run-item:last-child { border-bottom: none; }
+  .run-item .p { font-size: 12.5px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .run-item .m { font-family: "IBM Plex Mono", monospace; font-size: 10px; color: var(--muted); display: flex; gap: 8px; margin-top: 2px; }
+  .run-item .m .ok { color: var(--good); } .run-item .m .error { color: var(--bad); }
+  .empty { color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: 11px; padding: 10px 0; }
+  .week { display: flex; align-items: flex-end; gap: 6px; height: 74px; margin-top: 12px; }
+  .week .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+  .week .b { width: 100%; max-width: 26px; background: var(--blue); border-radius: 3px 3px 0 0; min-height: 2px; }
+  .week .d { font-family: "IBM Plex Mono", monospace; font-size: 9px; color: var(--muted); text-transform: uppercase; }
+
+  /* Stub tabs */
+  .stub { max-width: 640px; }
+  .stub .status { display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); border: 1px dashed var(--line-2); border-radius: 3px; padding: 3px 8px; margin-bottom: 14px; }
+  .stub h2 { font-family: "Barlow Condensed", sans-serif; font-size: 30px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin: 0 0 6px; }
+  .stub p { color: var(--ink-2); margin: 0 0 12px; max-width: 56ch; }
+  .stub ul { margin: 0 0 16px; padding-left: 18px; color: var(--ink-2); }
+  .stub li { margin: 4px 0; }
+  .stub .cta { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--gold); background: var(--gold-dim); border-left: 3px solid var(--gold); border-radius: 0 4px 4px 0; padding: 10px 12px; display: inline-block; }
+
+  .pagefoot { margin-top: 22px; padding-top: 12px; border-top: 3px solid var(--ink); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="logo">
+      <span class="flag">🏁</span>
+      <div>
+        <div class="name">Sayles <b>OS</b></div>
+        <div class="sub">One cockpit · whole life</div>
+      </div>
+    </div>
+    <div class="navlabel">Sections</div>
+    <button class="tabbtn active" data-tab="berger"><span class="glyph">◆</span> Berger · Sales</button>
+    <button class="tabbtn" data-tab="brain"><span class="glyph">▤</span> Brain <span class="soon">soon</span></button>
+    <button class="tabbtn" data-tab="goals"><span class="glyph">◎</span> Goals <span class="soon">soon</span></button>
+    <button class="tabbtn" data-tab="money"><span class="glyph">$</span> Money <span class="soon">soon</span></button>
+    <button class="tabbtn" data-tab="health"><span class="glyph">♥</span> Health <span class="soon">soon</span></button>
+    <div class="spacer"></div>
+    <span class="statuschip" id="status"><span class="dot"></span><span id="statusText">Idle</span></span>
+    <div class="foot">local · 127.0.0.1</div>
+  </aside>
+
+  <main class="content">
+
+    <!-- ═══ TAB: BERGER · SALES ═══ -->
+    <div class="tab" id="tab-berger">
+      <header class="mast">
+        <div>
+          <p class="eyebrow">Sayles OS · Section 01 · Berger Chevrolet · Grand Rapids MI</p>
+          <h1>Berger <b>Operator</b></h1>
+        </div>
+      </header>
+
+      <nav class="nav">
+        <span class="chip" id="vaultChip" title="">▤ Vault</span>
+        <a class="chip" href="https://claude.ai/code/artifact/b690180e-56b6-4535-ae7e-0006d945bfdb" target="_blank" rel="noopener">▦ Dashboard</a>
+        <a class="chip" href="https://claude.ai/code/artifact/d0baa4c9-8561-447b-bdac-577a7eb64eb1" target="_blank" rel="noopener">§ Field Manual</a>
+        <a class="chip" href="https://github.com/saylesnick/work-computer" target="_blank" rel="noopener">⌥ GitHub</a>
+      </nav>
+
+      <section class="meters">
+        <div class="panel">
+          <div class="plabel"><span>Runs · Today</span><span>resets · midnight</span></div>
+          <div class="meter-val" id="runsToday">0 <small>/ last 7d: 0</small></div>
+          <div class="bar"><i class="blue" id="runsBar"></i></div>
+          <div class="meter-sub" id="runsSub">no runs yet</div>
+        </div>
+        <div class="panel">
+          <div class="plabel"><span>Units · Month</span><span id="unitsMonth">—</span></div>
+          <div class="meter-val" id="unitsVal">— <small>/ —</small></div>
+          <div class="bar"><i id="unitsBar"></i></div>
+          <div class="meter-sub" id="unitsSub">set AIRTABLE_TOKEN for the live scoreboard</div>
+        </div>
+        <div class="panel">
+          <div class="plabel"><span>Gross · Month</span><span>vs goal</span></div>
+          <div class="meter-val" id="grossVal">— <small>/ —</small></div>
+          <div class="bar"><i id="grossBar"></i></div>
+          <div class="meter-sub" id="grossSub">appointments &amp; referrals on the dashboard</div>
+        </div>
+      </section>
+
+      <section class="panel activity">
+        <div class="plabel"><span>Operator · Cumulative runs · 30d</span><span id="actTotal">0 total</span></div>
+        <svg id="chart" viewBox="0 0 900 150" preserveAspectRatio="none" role="img" aria-label="Cumulative runs over the last 30 days"></svg>
+      </section>
+
+      <div class="main">
+        <section class="panel">
+          <div class="plabel"><span>Ready</span><span id="runnerName"></span></div>
+          <div class="hero">Run a <b>skill</b> to begin<span class="cursor"></span></div>
+          <div class="hint">click a skill · edit the prompt · press run — output streams below</div>
+          <div class="skills" id="skills"></div>
+          <textarea id="prompt" placeholder="type any prompt, or pick a skill above to load a template…"></textarea>
+          <div class="runrow">
+            <button class="run" id="runBtn">Run</button>
+            <button class="stop" id="stopBtn" hidden>Stop</button>
+            <select id="perm" title="Permission mode for this run">
+              <option value="default">permissions · ask</option>
+              <option value="acceptEdits">permissions · accept edits</option>
+            </select>
+            <span class="runmeta" id="runMeta"></span>
+          </div>
+          <div class="console" id="console"><span class="sys">— operator ready. output will stream here —</span></div>
+        </section>
+
+        <aside class="panel">
+          <div class="plabel"><span>Recent runs</span></div>
+          <div class="runs-list" id="runsList"><div class="empty">no runs yet</div></div>
+          <div class="plabel" style="margin-top:16px"><span>Last seven days</span></div>
+          <div class="week" id="week"></div>
+        </aside>
+      </div>
+
+      <footer class="pagefoot">
+        <span>Draft-only outbound · DriveCentric is the CRM · every deal gets a source</span>
+        <span>section 01 of the Sayles OS</span>
+      </footer>
+    </div>
+
+    <!-- ═══ STUB TABS ═══ -->
+    <div class="tab stub" id="tab-brain" hidden>
+      <span class="status">Section 02 · Not built yet</span>
+      <h2>Brain</h2>
+      <p>The knowledge base that grows as you feed it: customer notes, market intel, ideas, lessons from deals — all plain Markdown in the repo, organized and linked by Claude, browsable here and in Obsidian's graph view.</p>
+      <ul>
+        <li>A <span class="mono">brain/</span> folder the skills read and write</li>
+        <li>Quick-capture box → Claude files and links the note</li>
+        <li>Search and browse without leaving the cockpit</li>
+      </ul>
+      <span class="cta">Tell Claude: "build the Brain tab" — it designs this section with you, then ships it.</span>
+    </div>
+
+    <div class="tab stub" id="tab-goals" hidden>
+      <span class="status">Section 03 · Not built yet</span>
+      <h2>Goals</h2>
+      <p>The yearly picture above the monthly scoreboard: income targets, savings goals, the 20-units-a-month arc, personal missions — each broken into the weekly actions the other tabs execute.</p>
+      <ul>
+        <li>Year → quarter → month cascade, reviewed by <span class="mono">/review</span></li>
+        <li>Progress meters in the same cockpit language</li>
+      </ul>
+      <span class="cta">Tell Claude: "build the Goals tab" when you're ready.</span>
+    </div>
+
+    <div class="tab stub" id="tab-money" hidden>
+      <span class="status">Section 04 · Not built yet</span>
+      <h2>Money</h2>
+      <p>Personal finances next to the commissions that fund them: income tracking by month (fed by the Deals table), savings rate, bills calendar, and the "what does this month's gross become" view.</p>
+      <ul>
+        <li>Commission tracker seeded from the Sales Command Center</li>
+        <li>Budget vs. actual in cockpit meters</li>
+      </ul>
+      <span class="cta">Tell Claude: "build the Money tab" when you're ready.</span>
+    </div>
+
+    <div class="tab stub" id="tab-health" hidden>
+      <span class="status">Section 05 · Not built yet</span>
+      <h2>Health</h2>
+      <p>The engine behind the engine: workouts, sleep, weight — logged in one sentence the same way <span class="mono">/log</span> works for sales, charted the same way runs are.</p>
+      <ul>
+        <li>One-line logging → streaks and trend charts</li>
+        <li>Daily non-negotiables alongside the sales checklist</li>
+      </ul>
+      <span class="cta">Tell Claude: "build the Health tab" when you're ready.</span>
+    </div>
+
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); };
+
+  /* ── Tabs ── */
+  var tabButtons = document.querySelectorAll(".tabbtn");
+  function showTab(name) {
+    document.querySelectorAll(".tab").forEach(function (t) { t.hidden = t.id !== "tab-" + name; });
+    tabButtons.forEach(function (b) { b.classList.toggle("active", b.dataset.tab === name); });
+    try { localStorage.setItem("sayles-tab", name); } catch (e) {}
+  }
+  tabButtons.forEach(function (b) { b.addEventListener("click", function () { showTab(b.dataset.tab); }); });
+  try { var saved = localStorage.getItem("sayles-tab"); if (saved && $("tab-" + saved)) showTab(saved); } catch (e) {}
+
+  var TEMPLATES = {
+    "daily": "/daily",
+    "new-lead": "/new-lead\n<paste the lead here — DriveCentric card, Marketplace message, or just name + vehicle>",
+    "follow-up": "/follow-up\n<who + the situation, e.g. \"Sarah drove the Trax Tuesday, didn't buy, worried about payment\">",
+    "objection": "/objection\n<what the customer said, word for word>",
+    "social": "/social\n<units to feature this week + any deliveries with photo permission + one real customer question>",
+    "log": "/log\n<tonight's numbers in one sentence, e.g. \"20 calls, 6 conversations, 2 appts set, sold Jones the Silverado — referral\">",
+    "review": "/review"
+  };
+
+  /* ── Skills ── */
+  fetch("/api/skills").then(function (r) { return r.json(); }).then(function (d) {
+    var box = $("skills");
+    box.innerHTML = "";
+    (d.skills || []).forEach(function (s) {
+      var b = document.createElement("button");
+      b.className = "skill";
+      b.innerHTML = "/" + esc(s.name) + "<span>" + esc(s.description || "") + "</span>";
+      b.addEventListener("click", function () {
+        $("prompt").value = TEMPLATES[s.name] || ("/" + s.name + " ");
+        $("prompt").focus();
+      });
+      box.appendChild(b);
+    });
+  });
+
+  /* ── State / status chip ── */
+  function setStatus(running, text) {
+    $("status").className = "statuschip" + (running ? " run" : "");
+    $("statusText").textContent = text || (running ? "Running" : "Idle");
+    $("runBtn").disabled = running;
+    $("stopBtn").hidden = !running;
+  }
+  fetch("/api/state").then(function (r) { return r.json(); }).then(function (s) {
+    setStatus(s.running, s.running ? "Running" : "Idle");
+    $("vaultChip").title = s.repo || "";
+    $("runnerName").textContent = "runner · " + (s.runner || "claude");
+    if (s.airtableConfigured) $("unitsSub").textContent = "live from Sales Command Center";
+  });
+
+  /* ── Scoreboard ── */
+  fetch("/api/scoreboard").then(function (r) { return r.json(); }).then(function (s) {
+    if (!s || !s.configured || s.error) {
+      if (s && s.error) $("unitsSub").textContent = "scoreboard: " + s.error;
+      return;
+    }
+    $("unitsMonth").textContent = s.month || "";
+    $("unitsVal").innerHTML = esc(String(s.units.actual)) + " <small>/ " + esc(String(s.units.goal)) + "</small>";
+    $("unitsBar").style.width = Math.min(100, s.units.goal ? (s.units.actual / s.units.goal) * 100 : 0) + "%";
+    $("unitsSub").textContent = "appointments " + s.appts.actual + "/" + s.appts.goal + " · referrals " + s.refs.actual + "/" + s.refs.goal;
+    var money = function (n) { return "$" + Math.round(n).toLocaleString(); };
+    $("grossVal").innerHTML = esc(money(s.gross.actual)) + " <small>/ " + esc(money(s.gross.goal)) + "</small>";
+    $("grossBar").style.width = Math.min(100, s.gross.goal ? (s.gross.actual / s.gross.goal) * 100 : 0) + "%";
+    $("grossSub").textContent = "log tonight — the meters move";
+  }).catch(function () {});
+
+  /* ── Runs history: list, week bars, cumulative chart ── */
+  function dayKey(d) { return d.toISOString().slice(0, 10); }
+  function renderRuns(runs) {
+    var list = $("runsList");
+    if (!runs.length) { list.innerHTML = '<div class="empty">no runs yet</div>'; }
+    else {
+      list.innerHTML = runs.slice(0, 8).map(function (r) {
+        var t = new Date(r.startedAt);
+        var when = t.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + t.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        var cost = r.costUsd != null ? " · $" + r.costUsd.toFixed(2) : "";
+        return '<div class="run-item"><div class="p">' + esc(r.prompt) + '</div><div class="m"><span class="' + r.status + '">' + r.status + "</span><span>" + when + cost + "</span></div></div>";
+      }).join("");
+    }
+    var byDay = {};
+    runs.forEach(function (r) { var k = (r.startedAt || "").slice(0, 10); byDay[k] = (byDay[k] || 0) + 1; });
+
+    var week = $("week"); week.innerHTML = "";
+    var days = [], max = 1;
+    for (var i = 6; i >= 0; i--) {
+      var d = new Date(); d.setDate(d.getDate() - i);
+      var n = byDay[dayKey(d)] || 0; max = Math.max(max, n);
+      days.push({ label: d.toLocaleDateString([], { weekday: "short" }), n: n });
+    }
+    days.forEach(function (d) {
+      var col = document.createElement("div"); col.className = "col";
+      col.innerHTML = '<div class="b" style="height:' + Math.max(3, (d.n / max) * 56) + 'px" title="' + d.n + ' runs"></div><div class="d">' + esc(d.label) + "</div>";
+      week.appendChild(col);
+    });
+
+    var today = byDay[dayKey(new Date())] || 0;
+    var wk = days.reduce(function (a, d) { return a + d.n; }, 0);
+    $("runsToday").innerHTML = today + " <small>/ last 7d: " + wk + "</small>";
+    $("runsBar").style.width = Math.min(100, (today / 10) * 100) + "%";
+    $("runsSub").textContent = today ? "keep the loop moving" : "run /daily to start the day";
+
+    var pts = [], tail = 0;
+    for (var j = 29; j >= 0; j--) {
+      var dd = new Date(); dd.setDate(dd.getDate() - j);
+      tail += byDay[dayKey(dd)] || 0;
+      pts.push(tail);
+    }
+    $("actTotal").textContent = tail + " total · " + wk + " last 7d";
+    var svg = $("chart"), W = 900, H = 150, PAD = 8;
+    var maxV = Math.max(1, tail);
+    var xy = pts.map(function (v, idx) {
+      return [PAD + (idx / 29) * (W - 2 * PAD), H - PAD - (v / maxV) * (H - 2 * PAD - 14)];
+    });
+    var path = xy.map(function (p, idx) { return (idx ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" ");
+    var area = path + " L" + xy[xy.length - 1][0].toFixed(1) + " " + (H - PAD) + " L" + xy[0][0].toFixed(1) + " " + (H - PAD) + " Z";
+    var grid = "";
+    for (var g = 1; g <= 3; g++) {
+      var gy = PAD + (g / 4) * (H - 2 * PAD);
+      grid += '<line x1="' + PAD + '" y1="' + gy + '" x2="' + (W - PAD) + '" y2="' + gy + '" stroke="var(--grid)" stroke-width="1"/>';
+    }
+    var last = xy[xy.length - 1];
+    svg.innerHTML = grid +
+      '<path d="' + area + '" fill="rgba(57,135,229,0.12)"/>' +
+      '<path d="' + path + '" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linejoin="round"/>' +
+      '<circle cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="4" fill="var(--blue)" stroke="#121210" stroke-width="2"/>';
+  }
+  function refreshRuns() {
+    fetch("/api/runs").then(function (r) { return r.json(); }).then(function (d) { renderRuns(d.runs || []); });
+  }
+  refreshRuns();
+
+  /* ── Console + SSE ── */
+  var con = $("console");
+  function push(cls, text) {
+    var span = document.createElement("span");
+    span.className = cls; span.textContent = text;
+    con.appendChild(span);
+    con.scrollTop = con.scrollHeight;
+  }
+  var es = new EventSource("/api/stream");
+  es.addEventListener("start", function (e) {
+    var d = JSON.parse(e.data);
+    con.innerHTML = "";
+    push("sys", "▶ " + d.prompt.split("\n")[0] + "\n\n");
+    setStatus(true);
+    $("runMeta").textContent = "";
+  });
+  es.addEventListener("meta", function (e) {
+    var d = JSON.parse(e.data);
+    if (d.model) $("runMeta").textContent = d.model;
+  });
+  es.addEventListener("chunk", function (e) { var d = JSON.parse(e.data); if (d.text) push("out", d.text); });
+  es.addEventListener("tool", function (e) { var d = JSON.parse(e.data); push("tool", "\n▸ " + d.name + "\n"); });
+  es.addEventListener("stderr", function (e) { var d = JSON.parse(e.data); push("err", d.text); });
+  es.addEventListener("done", function (e) {
+    var d = JSON.parse(e.data);
+    var r = d.run || {};
+    var bits = [d.status];
+    if (r.durationMs) bits.push(Math.round(r.durationMs / 1000) + "s");
+    if (r.costUsd != null) bits.push("$" + r.costUsd.toFixed(2));
+    push("sys", "\n\n— " + bits.join(" · ") + " —\n");
+    setStatus(false);
+    refreshRuns();
+  });
+
+  /* ── Run / stop ── */
+  $("runBtn").addEventListener("click", function () {
+    var prompt = $("prompt").value.trim();
+    if (!prompt) { $("prompt").focus(); return; }
+    fetch("/api/run", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: prompt, permissionMode: $("perm").value })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d.error) { con.innerHTML = ""; push("err", d.error + "\n"); }
+    });
+  });
+  $("stopBtn").addEventListener("click", function () { fetch("/api/stop", { method: "POST" }); });
+  $("prompt").addEventListener("keydown", function (e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") $("runBtn").click();
+  });
+})();
+</script>
+</body>
+</html>
