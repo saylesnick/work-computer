@@ -18,7 +18,7 @@ the whole system on one page.
 | Scoreboard | Airtable "Sales Command Center" (`os/airtable.md`) | Goals, activity, deals w/ source attribution, referral network, content calendar |
 | Daily interface | `.claude/skills/` | `/daily` `/new-lead` `/follow-up` `/social` `/objection` `/log` `/review` |
 | Dashboard | `dashboard/sales-command-center.html` | Live command-center page (published as a Claude artifact; reads Airtable via the viewer's connector) |
-| Operator (local cockpit) | `operator/` | AgenticOS-style local app: skill launcher, streamed Claude runs, run history + charts, scoreboard. `node operator/server.js` → localhost:8768 |
+| Sayles OS (local cockpit) | `operator/` | Tabbed local app — Berger·Sales is section 01 (skill launcher, streamed Claude runs, activity charts, scoreboard); Brain/Goals/Money/Health tabs get built next. `node operator/server.js` → localhost:8768 |
 
 ## The daily loop
 

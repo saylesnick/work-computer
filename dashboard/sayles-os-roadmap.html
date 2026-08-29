@@ -1,0 +1,146 @@
+<title>Sayles OS Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  /* Sayles OS identity: dark-first cockpit; light theme below. */
+  :root {
+    color-scheme: dark;
+    --ground:   #131311;
+    --card:     #1c1b17;
+    --card-2:   #211f1a;
+    --ink:      #f2efe4;
+    --ink-2:    #b8b3a2;
+    --muted:    #8b8779;
+    --line:     rgba(242,239,228,0.11);
+    --line-2:   rgba(242,239,228,0.22);
+    --gold:     #e2af35;
+    --gold-ink: #e2af35;
+    --gold-dim: rgba(226,175,53,0.10);
+    --good-ink: #4cc24c;
+    --shadow:   0 1px 0 rgba(0,0,0,0.4);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      color-scheme: light;
+      --ground: #f6f4ec; --card: #fdfcf8; --card-2: #f3f1e7;
+      --ink: #191813; --ink-2: #55524a; --muted: #837f72;
+      --line: rgba(25,24,19,0.12); --line-2: rgba(25,24,19,0.26);
+      --gold: #dca61f; --gold-ink: #8a6a00; --gold-dim: rgba(220,166,31,0.13);
+      --good-ink: #006300; --shadow: 0 1px 2px rgba(25,24,19,0.06);
+    }
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --ground: #f6f4ec; --card: #fdfcf8; --card-2: #f3f1e7;
+    --ink: #191813; --ink-2: #55524a; --muted: #837f72;
+    --line: rgba(25,24,19,0.12); --line-2: rgba(25,24,19,0.26);
+    --gold: #dca61f; --gold-ink: #8a6a00; --gold-dim: rgba(220,166,31,0.13);
+    --good-ink: #006300; --shadow: 0 1px 2px rgba(25,24,19,0.06);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: "Barlow", system-ui, sans-serif; font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 28px 20px 64px; }
+  h1, h2 { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; text-transform: uppercase; }
+  .mono, code { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  code { font-size: 13px; color: var(--gold-ink); background: var(--gold-dim); border-radius: 3px; padding: 1px 5px; white-space: nowrap; }
+
+  .mast { border-bottom: 3px solid var(--ink); padding-bottom: 14px; }
+  .eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); margin: 0 0 3px; }
+  h1 { margin: 0; font-size: clamp(32px,6vw,48px); font-weight: 700; letter-spacing: .02em; line-height: .95; text-wrap: balance; }
+  h1 b { color: var(--gold-ink); }
+  .lede { color: var(--ink-2); margin: 10px 0 0; max-width: 62ch; }
+
+  section { margin-top: 30px; }
+  .h2rule { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line-2); padding-bottom: 8px; margin-bottom: 14px; }
+  h2 { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: .05em; }
+  .h2note { font-size: 12px; color: var(--muted); }
+
+  .sec { background: var(--card); border: 1px solid var(--line); border-radius: 6px; box-shadow: var(--shadow); padding: 16px 18px; margin-bottom: 12px; }
+  .sec-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .sec-num { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .12em; color: var(--gold-ink); }
+  .sec-name { font-family: "Barlow Condensed", sans-serif; font-size: 24px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .pill { margin-left: auto; font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; border-radius: 3px; padding: 2px 8px; }
+  .pill.live { color: var(--good-ink); border: 1px solid var(--good-ink); }
+  .pill.next { color: var(--gold-ink); border: 1px solid var(--gold-ink); background: var(--gold-dim); }
+  .pill.later { color: var(--muted); border: 1px dashed var(--line-2); }
+  .sec p { margin: 8px 0 0; color: var(--ink-2); max-width: 66ch; }
+  .sec .rows { margin-top: 10px; display: grid; gap: 4px; }
+  .sec .row { display: grid; grid-template-columns: 110px 1fr; gap: 10px; font-size: 13px; padding: 4px 0; border-top: 1px solid var(--line); }
+  .sec .row .k { font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+  .sec .row .v { color: var(--ink-2); }
+  .sec .row .v b { color: var(--ink); font-weight: 600; }
+
+  .principles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 700px) { .principles { grid-template-columns: 1fr; } }
+  .prin { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 13px 15px; }
+  .prin b { display: block; font-weight: 600; margin-bottom: 3px; }
+  .prin span { color: var(--ink-2); font-size: 13.5px; }
+
+  .foot { margin-top: 34px; padding-top: 12px; border-top: 3px solid var(--ink); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--gold); }
+  a:hover { color: var(--gold-ink); }
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <p class="eyebrow">One cockpit · whole life · built in sections</p>
+    <h1>Sayles <b>OS</b> Roadmap</h1>
+    <p class="lede">The standing plan Nick and Claude build against. One local interface (<code>operator/</code> in the repo) where every part of life is a tab. Sections ship one at a time, each usable the day it lands. This page updates as sections go live.</p>
+  </header>
+
+  <section>
+    <div class="h2rule"><h2>The Sections</h2><span class="h2note">Status as of Aug 29, 2026</span></div>
+
+    <div class="sec">
+      <div class="sec-head"><span class="sec-num">01</span><span class="sec-name">Berger · Sales</span><span class="pill live">Live</span></div>
+      <p>The business engine: 7 skills (/daily → /review), four lead-engine playbooks, sale-process blueprints, script libraries, Airtable scoreboard, cloud dashboard, and the local cockpit with streamed Claude runs and activity charts.</p>
+      <div class="rows">
+        <div class="row"><span class="k">Keeps growing</span><span class="v">Routines (auto-morning brief), run detail view, embedded funnel/engine graphs, script tuning as real results come in</span></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><span class="sec-num">02</span><span class="sec-name">Brain</span><span class="pill next">Recommended next</span></div>
+      <p>The knowledge base that grows as you feed it. A <code>brain/</code> folder of plain-Markdown notes — customer intel, market notes, ideas, lessons from deals — that Claude files, links, and organizes. Browsable in the cockpit; the same folder opens in Obsidian for the graph view.</p>
+      <div class="rows">
+        <div class="row"><span class="k">Ships with</span><span class="v">Quick-capture (<b>/note</b> skill), auto-filing &amp; linking, cockpit browser/search, Obsidian-ready vault structure</span></div>
+        <div class="row"><span class="k">Why next</span><span class="v">Every other section gets smarter when there's a brain to read from — and the sales skills start pulling customer/market notes immediately</span></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><span class="sec-num">03</span><span class="sec-name">Goals</span><span class="pill later">Queued</span></div>
+      <p>The yearly picture above the monthly scoreboard: income targets, the units-per-month arc, savings goals, personal missions — cascaded year → quarter → month → this week's actions, reviewed by <code>/review</code>.</p>
+      <div class="rows"><div class="row"><span class="k">Needs from Nick</span><span class="v">One honest conversation about the year's targets</span></div></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><span class="sec-num">04</span><span class="sec-name">Money</span><span class="pill later">Queued</span></div>
+      <p>Personal finances beside the commissions that fund them: income by month (seeded from the Deals table), savings rate, bills calendar, budget vs. actual in the same cockpit meters.</p>
+      <div class="rows"><div class="row"><span class="k">Needs from Nick</span><span class="v">Pay structure basics + how hands-on he wants tracking to be</span></div></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><span class="sec-num">05</span><span class="sec-name">Health</span><span class="pill later">Queued</span></div>
+      <p>The engine behind the engine: workouts, sleep, weight — one-sentence logging exactly like <code>/log</code>, charted exactly like runs, with streaks and a daily non-negotiables row beside the sales checklist.</p>
+      <div class="rows"><div class="row"><span class="k">Needs from Nick</span><span class="v">Which 3–5 numbers he actually wants to track</span></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="h2rule"><h2>How We Build</h2><span class="h2note">The rules that keep this real</span></div>
+    <div class="principles">
+      <div class="prin"><b>One section at a time, usable on day one.</b><span>No half-built everything. A section ships when Nick can use it that shift.</span></div>
+      <div class="prin"><b>The repo is the OS.</b><span>Everything — playbooks, brain, cockpit code — lives in git. Clone it anywhere and the whole OS comes with it.</span></div>
+      <div class="prin"><b>Same language everywhere.</b><span>One-sentence logging, cockpit meters, gold-on-asphalt. Learning one section means knowing them all.</span></div>
+      <div class="prin"><b>Data stays Nick's.</b><span>Local server binds 127.0.0.1 only; Airtable is his base; nothing auto-sends, ever.</span></div>
+      <div class="prin"><b>Sales pays for everything.</b><span>Section 01 gets priority on polish — it's the engine that funds the rest of the board.</span></div>
+      <div class="prin"><b>Say the word, get the section.</b><span>"Build the Brain tab" is a complete instruction. Claude designs it with Nick, then ships it.</span></div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span><a href="https://github.com/saylesnick/work-computer" target="_blank" rel="noopener">Repo</a> · <a href="https://claude.ai/code/artifact/b690180e-56b6-4535-ae7e-0006d945bfdb" target="_blank" rel="noopener">Dashboard</a> · <a href="https://claude.ai/code/artifact/d0baa4c9-8561-447b-bdac-577a7eb64eb1" target="_blank" rel="noopener">Field Manual</a></span>
+    <span>Section 01 live · 02 recommended next</span>
+  </footer>
+</div>

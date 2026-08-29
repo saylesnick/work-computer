@@ -1,8 +1,10 @@
-# Berger Operator — the local cockpit
+# Sayles OS — the local cockpit
 
-The AgenticOS-style local interface for Nick's Sales OS: skill launcher,
-live-streamed Claude Code runs, run history with activity charts, and the
-month's scoreboard — all running on your own computer at
+One interface for Nick's whole operation, built out in sections. Section 01
+is **Berger · Sales**: skill launcher, live-streamed Claude Code runs, run
+history with activity charts, and the month's scoreboard. Brain, Goals,
+Money, and Health are stubbed in the sidebar and get built next — each new
+section is just another tab in this shell. Runs on your own computer at
 `http://127.0.0.1:8768`.
 
 Zero dependencies. One file server, one page, Node built-ins only.
