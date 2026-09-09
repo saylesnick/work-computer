@@ -1,0 +1,219 @@
+<title>Sales OS Field Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  /* Same identity as the Sales Command Center: dark-first, bowtie gold on asphalt. */
+  :root {
+    color-scheme: dark;
+    --ground:      #131311;
+    --card:        #1c1b17;
+    --card-2:      #211f1a;
+    --ink:         #f2efe4;
+    --ink-2:       #b8b3a2;
+    --muted:       #8b8779;
+    --line:        rgba(242,239,228,0.11);
+    --line-strong: rgba(242,239,228,0.22);
+    --gold:        #e2af35;
+    --gold-ink:    #e2af35;
+    --gold-wash:   rgba(226,175,53,0.10);
+    --good-ink:    #4cc24c;
+    --critical-ink:#ec6a6a;
+    --shadow:      0 1px 0 rgba(0,0,0,0.4);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      color-scheme: light;
+      --ground:      #f6f4ec;
+      --card:        #fdfcf8;
+      --card-2:      #f3f1e7;
+      --ink:         #191813;
+      --ink-2:       #55524a;
+      --muted:       #837f72;
+      --line:        rgba(25,24,19,0.12);
+      --line-strong: rgba(25,24,19,0.26);
+      --gold:        #dca61f;
+      --gold-ink:    #8a6a00;
+      --gold-wash:   rgba(220,166,31,0.13);
+      --good-ink:    #006300;
+      --critical-ink:#b32424;
+      --shadow:      0 1px 2px rgba(25,24,19,0.06);
+    }
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --ground:      #f6f4ec;
+    --card:        #fdfcf8;
+    --card-2:      #f3f1e7;
+    --ink:         #191813;
+    --ink-2:       #55524a;
+    --muted:       #837f72;
+    --line:        rgba(25,24,19,0.12);
+    --line-strong: rgba(25,24,19,0.26);
+    --gold:        #dca61f;
+    --gold-ink:    #8a6a00;
+    --gold-wash:   rgba(220,166,31,0.13);
+    --good-ink:    #006300;
+    --critical-ink:#b32424;
+    --shadow:      0 1px 2px rgba(25,24,19,0.06);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 840px; margin: 0 auto; padding: 28px 20px 64px; }
+  h1, h2 { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; text-transform: uppercase; }
+  .mono, code { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", monospace; }
+
+  .masthead { border-bottom: 3px solid var(--ink); padding-bottom: 14px; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 500;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 0 0 2px;
+  }
+  h1 { margin: 0; font-size: clamp(32px, 6vw, 46px); font-weight: 700; letter-spacing: 0.015em; line-height: 0.95; text-wrap: balance; }
+  h1 .bar { color: var(--gold-ink); }
+  .lede { color: var(--ink-2); margin: 10px 0 0; max-width: 62ch; }
+
+  section { margin-top: 30px; }
+  h2 { margin: 0 0 4px; font-size: 21px; font-weight: 600; letter-spacing: 0.05em; }
+  .h2rule { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line-strong); padding-bottom: 8px; margin-bottom: 14px; }
+  .h2note { font-size: 12px; color: var(--muted); }
+
+  code {
+    font-size: 13px; color: var(--gold-ink); background: var(--gold-wash);
+    border-radius: 3px; padding: 1px 5px; white-space: nowrap;
+  }
+  .say { color: var(--ink-2); font-style: italic; }
+
+  /* The loop */
+  .loop { list-style: none; counter-reset: step; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .loop li {
+    counter-increment: step; display: grid; grid-template-columns: 34px 1fr; gap: 12px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+    box-shadow: var(--shadow); padding: 12px 14px;
+  }
+  .loop li::before {
+    content: counter(step);
+    font-family: "Barlow Condensed", sans-serif; font-size: 24px; font-weight: 700;
+    color: var(--gold-ink); line-height: 1;
+  }
+  .loop b { font-weight: 600; }
+  .loop .when { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 1px; }
+
+  /* Tables */
+  .tblwrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--card); box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  th {
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+    background: var(--card-2);
+  }
+  td:first-child { white-space: nowrap; }
+  td .d { color: var(--ink-2); }
+
+  .callout {
+    border-left: 3px solid var(--gold); background: var(--gold-wash);
+    border-radius: 0 5px 5px 0; padding: 11px 14px; font-size: 13.5px; color: var(--ink-2);
+    margin-top: 12px;
+  }
+  .callout b { color: var(--ink); }
+
+  .qa { display: flex; flex-direction: column; }
+  .qa > div { padding: 10px 2px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .qa > div:last-child { border-bottom: none; }
+  .qa .q { font-weight: 600; }
+  .qa .a { color: var(--ink-2); margin-top: 1px; }
+
+  .foot {
+    margin-top: 34px; padding-top: 12px; border-top: 3px solid var(--ink);
+    display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--gold); }
+  a:hover { color: var(--gold-ink); }
+  a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow">Nick's Sales OS · Berger Chevrolet · Grand Rapids MI</p>
+    <h1>Field <span class="bar">Manual</span></h1>
+    <p class="lede">One sheet on how to run the OS: the daily loop, what every dashboard panel means, and the exact commands that drive it. DriveCentric stays your CRM — this system exists to <b>make customers</b> and <b>sharpen every stage of the sale</b>.</p>
+  </header>
+
+  <!-- 1. The loop -->
+  <section>
+    <div class="h2rule"><h2>The Loop</h2><span class="h2note">This is the whole job. Everything else is detail.</span></div>
+    <ol class="loop">
+      <li><div><span class="when">Morning · 2 min</span><b>Type <code>/daily</code> to Claude.</b> You get today's plan: content to post, the mining play, referral touches due, your appointments, and pace vs. goal.</div></li>
+      <li><div><span class="when">During the day · ~60–90 min of self-generated work</span><b>Work the plan.</b> 1 post + 1 video, 10 mining outreaches, referral touches — plus your normal DriveCentric workplan. Tick items off on the dashboard's Today panel as you go.</div></li>
+      <li><div><span class="when">Whenever a lead or moment hits</span><b>Use the situational commands.</b> New lead → <code>/new-lead</code>. Not sure what to send someone → <code>/follow-up</code>. Customer pushes back → <code>/objection</code>. Content needed → <code>/social</code>.</div></li>
+      <li><div><span class="when">End of shift · 1 sentence</span><b>Type <code>/log</code> with your numbers.</b> <span class="say">"/log 22 calls, 8 conversations, 2 appts set, 1 shown. Sold Jones the used Silverado, $1,800 front — Marketplace lead."</span> That single sentence updates Airtable, and the dashboard moves.</div></li>
+      <li><div><span class="when">Weekly · 30 min</span><b>Type <code>/review</code>.</b> Real funnel ratios, which engine is producing, one focus for next week. Then batch next week's content with <code>/social</code>.</div></li>
+    </ol>
+  </section>
+
+  <!-- 2. Reading the dashboard -->
+  <section>
+    <div class="h2rule"><h2>Reading the Dashboard</h2><span class="h2note">It reads your Airtable live and refreshes every ~2 min</span></div>
+    <div class="tblwrap"><table>
+      <tr><th>Panel</th><th>What it tells you</th><th>What feeds it</th></tr>
+      <tr><td><b>Scoreboard</b> (top row)</td><td>Units, gross, appointments, referrals vs. this month's goals. The small tick on each meter = how much of the month is gone; the pill says ahead / on pace / behind.</td><td><code>/log</code> → Goals &amp; Scoreboard</td></tr>
+      <tr><td><b>The Funnel</b></td><td>Conversations → set → shown → sold, with your real conversion rates vs. the benchmarks to beat (20–30%, 50–70%, ~50%). The weakest ratio is where next week's focus comes from.</td><td><code>/log</code> → Activity Log + Deals</td></tr>
+      <tr><td><b>Deals by Engine</b></td><td>Where sales actually come from. The leading engine is where you double down; an engine getting activity but no deals gets fixed or dropped.</td><td><code>/log</code> a sale with its source</td></tr>
+      <tr><td><b>Today's Plan</b></td><td>The mining play of the day (rotation: Mon leases, Tue/Fri orphans, Wed equity, Thu be-backs, Sat service drive) + your 6 daily non-negotiables as a checklist. Checkmarks reset each day and live on that device.</td><td>Built in — no logging needed</td></tr>
+      <tr><td><b>Referral Network</b></td><td>Who's due for a touch and who's gone cold (30+ days silent shows red). A warm network of ~20 bird dogs out-earns any ad budget.</td><td><code>/log</code> a touch or new contact</td></tr>
+      <tr><td><b>Content This Week</b></td><td>What's planned vs. posted, Sunday–Saturday. Empty week = run <code>/social</code>.</td><td><code>/social</code> plans · <code>/log</code> marks posted</td></tr>
+      <tr><td><b>Run the OS</b></td><td>Command reference + one-click links into every playbook in the repo.</td><td>—</td></tr>
+    </table></div>
+    <div class="callout"><b>Status chip, top right:</b> <span style="color:var(--good-ink)">Live · Airtable</span> means real-time data. <b>Snapshot</b> means open it in claude.ai (or reconnect Airtable) for live numbers. First open asks permission to use your Airtable connector once — say yes.</div>
+  </section>
+
+  <!-- 3. Commands -->
+  <section>
+    <div class="h2rule"><h2>The Commands</h2><span class="h2note">Type them to Claude, any session, plain English after the slash</span></div>
+    <div class="tblwrap"><table>
+      <tr><th>Command</th><th>When</th><th>Say it like</th></tr>
+      <tr><td><code>/daily</code></td><td>Every morning</td><td class="say">"/daily"</td></tr>
+      <tr><td><code>/new-lead</code></td><td>The second a lead hits — speed wins</td><td class="say">"/new-lead" + paste the lead. You get call script, voicemail, text, and email, ready to fire from work systems.</td></tr>
+      <tr><td><code>/follow-up</code></td><td>Anyone you're unsure what to send</td><td class="say">"/follow-up — Sarah drove the Trax Tuesday, didn't buy, worried about payment"</td></tr>
+      <tr><td><code>/objection</code></td><td>Mid-deal, live</td><td class="say">"/objection — he said my trade number is $3k too low"</td></tr>
+      <tr><td><code>/social</code></td><td>Once a week (Sunday works)</td><td class="say">"/social — feature the 2023 Silverado trade-in and the red Equinox" → 7 posts, 3 video shot lists, Marketplace copy</td></tr>
+      <tr><td><code>/log</code></td><td>End of every shift + every sale, same day</td><td class="say">"/log 20 calls, coffee with Mike the barber, posted the walkaround, sold Peterson the Traverse — referral"</td></tr>
+      <tr><td><code>/review</code></td><td>Weekly; say "monthly" at month-end</td><td class="say">"/review"</td></tr>
+    </table></div>
+    <div class="callout"><b>The two that can't be skipped:</b> <code>/daily</code> starts the day, <code>/log</code> ends it. Every other command is situational — those two are the flywheel, and the dashboard is only as honest as your <code>/log</code>.</div>
+  </section>
+
+  <!-- 4. Rules of the road -->
+  <section>
+    <div class="h2rule"><h2>Rules of the Road</h2><span class="h2note">Built into everything Claude drafts for you</span></div>
+    <div class="qa">
+      <div><span class="q">Nothing sends itself.</span><div class="a">Every email, text, and script is a draft you copy into DriveCentric, work email, or the dealer texting tool. Texts go only to opted-in customers through dealership tools.</div></div>
+      <div><span class="q">No invented numbers.</span><div class="a">Prices, payments, rates, and trade values show as {{placeholders}} until you fill them from the desk. Honesty is the brand.</div></div>
+      <div><span class="q">Every sold deal gets a source.</span><div class="a">When you /log a sale, name where it came from (referral, Marketplace, orphan, be-back…). That one habit is what makes the Engines panel — and every double-down decision — real.</div></div>
+      <div><span class="q">DriveCentric is still the CRM.</span><div class="a">Tasks, workplan, and customer records live there. The OS layers on top; it never replaces store process.</div></div>
+    </div>
+  </section>
+
+  <!-- 5. Quick fixes -->
+  <section>
+    <div class="h2rule"><h2>Quick Fixes</h2><span class="h2note">The four questions you'll actually have</span></div>
+    <div class="qa">
+      <div><span class="q">Dashboard says "Snapshot" instead of "Live."</span><div class="a">Open it inside claude.ai and allow the Airtable permission when asked. If it says reconnect: claude.ai Settings → Connectors → Airtable.</div></div>
+      <div><span class="q">I want to change my monthly goals.</span><div class="a">Tell Claude ("set my September goal to 18 units") or edit the month's row in the Airtable base "Sales Command Center" → Goals &amp; Scoreboard. The dashboard follows within ~2 minutes.</div></div>
+      <div><span class="q">I logged something wrong.</span><div class="a">Just tell Claude — "that Jones deal was a be-back, not a referral" — and it corrects Airtable. /review also cross-checks totals weekly and fixes drift.</div></div>
+      <div><span class="q">My checklist reset / looks different on my phone.</span><div class="a">By design: the Today checklist is per-day and per-device. The numbers that matter live in Airtable via /log, never in the checkboxes.</div></div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span>Playbooks &amp; scripts · <a href="https://github.com/saylesnick/work-computer/blob/claude/work-cloud-environment-nsph5r/os/00-operating-system.md" target="_blank" rel="noopener">the OS on one page</a></span>
+    <span>Log tonight · the board moves</span>
+  </footer>
+</div>
