@@ -15,6 +15,7 @@ the whole system on one page.
 | Lead engines | `os/playbooks/lead-engines/` | Social & video, database mining, referrals & repeat, floor & phone |
 | Sale process | `os/playbooks/sale-process/` | Pre-sale, during-sale, post-sale playbooks |
 | Scripts | `os/scripts/{email,text,phone,social}/` | Copy-paste templates for every scenario |
+| CRM Brain | `os/drivecentric-brain.md` | DriveCentric map: where KPIs live, mining segments ↔ our plays, the Appointment Board morning edge |
 | Scoreboard | Airtable "Sales Command Center" (`os/airtable.md`) | Goals, activity, deals w/ source attribution, referral network, content calendar |
 | Daily interface | `.claude/skills/` | `/daily` `/new-lead` `/follow-up` `/social` `/objection` `/log` `/review` |
 | Dashboard | `dashboard/sales-command-center.html` | Live command-center page (published as a Claude artifact; reads Airtable via the viewer's connector) |

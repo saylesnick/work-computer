@@ -61,6 +61,7 @@ os/00-operating-system.md        ← start here: the whole system on one page
 os/playbooks/lead-engines/       ← social-video, database-mining, referrals-repeat, floor-and-phone
 os/playbooks/sale-process/       ← pre-sale, during-sale, post-sale
 os/scripts/{email,text,phone,social}/  ← copy-paste template libraries
+os/drivecentric-brain.md         ← the CRM map: KPI pull routine, mining segments, appointment board
 .claude/skills/                  ← the slash commands above
 dashboard/sales-command-center.html    ← the live dashboard (published as a Claude artifact)
 ```

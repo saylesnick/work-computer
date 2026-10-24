@@ -10,7 +10,10 @@ day of real conversations.
 200+/month = a second pipeline.
 
 All lists come out of DriveCentric (and the DMS/service scheduler where you
-have access). Ask your manager which mined lists are open season vs. assigned —
+have access) — and most are **pre-built in DriveCentric's Mining tab** with
+live counts: see `../../drivecentric-brain.md` §3 for the segment-to-play
+mapping (Orphans, Lease Ending, High Interest, Dead Deals, No Closed ROs).
+Ask your manager which mined lists are open season vs. assigned —
 orphan owners especially are usually first-come, first-served.
 
 ---

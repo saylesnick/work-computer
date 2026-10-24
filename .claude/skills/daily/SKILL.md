@@ -29,9 +29,14 @@ brief covers the self-generated business DriveCentric doesn't drive.
      `os/scripts/social/post-templates.md`.
 3. **Mining play of the day:** from the weekly rotation table in
    `os/playbooks/lead-engines/database-mining.md` (Mon=Lease, Tue=Orphan,
-   Wed=Equity, Thu=Be-backs, Fri=Orphan, Sat=Service drive). If `/review`
-   has established that a different play converts best for Nick, weight
-   toward that and say why.
+   Wed=Equity, Thu=Be-backs, Fri=Orphan, Sat=Service drive). Name the matching
+   DriveCentric Mining segment to open (mapping: `os/drivecentric-brain.md`
+   §3 — e.g. Orphan day → the "Orphans" mine). If `/review` has established
+   that a different play converts best for Nick, weight toward that and say why.
+4. **Appointment Board reminder (when Nick is logged into DriveCentric):**
+   prompt him to scan the Appointment Board (`os/drivecentric-brain.md` §4)
+   for dash/unassigned and BDC-only rows and note their arrival times — those
+   are the lot times that matter today.
 
 ## Deliver (this exact shape, short)
 
